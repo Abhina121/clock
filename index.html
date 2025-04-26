@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Repeating Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-md text-center w-4/5 max-w-md">
+      <h1 class="text-2xl font-semibold text-blue-600 mb-6">Set Timer</h1>
+      <div class="mb-4">
+        <input
+          type="number"
+          id="seconds"
+          placeholder="Enter time in seconds"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-md"
+        />
+      </div>
+      <div class="mb-4">
+        <button
+          id="start"
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline rounded-md"
+        >
+          Start Timer
+        </button>
+      </div>
+      <div id="message" class="mt-6 text-gray-800"></div>
+      <audio
+        id="beep"
+        src="https://www.soundjay.com/buttons/sounds/beep-01a.mp3"
+        preload="auto"
+      ></audio>
+    </div>
+
+    <script>
+      document.getElementById("start").addEventListener("click", function () {
+        let seconds = document.getElementById("seconds").value;
+        let message = document.getElementById("message");
+        let beepSound = document.getElementById("beep");
+
+        if (seconds <= 0) {
+          message.textContent = "Please enter a positive number of seconds.";
+          message.classList.add("text-red-500");
+          message.classList.remove("text-green-500");
+          return;
+        }
+
+        message.textContent = `Timer set for ${seconds} seconds.`;
+        message.classList.remove("text-red-500");
+        message.classList.add("text-green-500");
+
+        let repetitions = 1000;
+        let currentRepetition = 0;
+
+        function startTimer() {
+          let remainingTime = parseInt(seconds);
+          let intervalId = setInterval(function () {
+            remainingTime--;
+            message.textContent = `Time remaining: ${remainingTime} seconds.`;
+
+            if (remainingTime <= 0) {
+              clearInterval(intervalId);
+              message.textContent = "Time's up!";
+              beepSound
+                .play()
+                .catch((e) => console.error("Error playing beep:", e));
+              currentRepetition++;
+
+              if (currentRepetition < repetitions) {
+                setTimeout(startTimer, 1000);
+              } else {
+                message.textContent = "Timer sequence complete!";
+              }
+            }
+          }, 1000);
+        }
+
+        startTimer();
+      });
+    </script>
+  </body>
+</html>
