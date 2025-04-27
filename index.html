@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Repeating Timer</title>
+    <title>Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
@@ -12,6 +12,11 @@
     <style>
       body {
         font-family: "Inter", sans-serif;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
     </style>
     <script>
@@ -26,26 +31,40 @@
       };
     </script>
   </head>
-  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-md text-center w-4/5 max-w-md">
-      <h1 class="text-2xl font-semibold text-blue-600 mb-6">Set Timer</h1>
-      <div class="mb-4">
+  <body
+    class="bg-stone-950 p-3 grid place-items-center min-h-screen text-white"
+  >
+    <div
+      class="bg-stone-800 p-4 py-6 rounded-xl text-center max-w-md flex flex-col gap-5 justify-center items-center"
+    >
+      <h1 class="text-2xl font-semibold">Set Timer</h1>
+      <div class="flex gap-1">
         <input
           type="number"
-          id="seconds"
-          placeholder="Enter time in seconds"
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline rounded-md"
+          id="inhale"
+          placeholder="Inhale"
+          class="border border-stone-600 rounded w-full py-1 px-3 bg-stone-700 focus:outline-none focus:border-stone-500 rounded-lg"
+        />
+        <input
+          type="number"
+          id="retain"
+          placeholder="Retain"
+          class="border border-stone-600 rounded w-full py-1 px-3 bg-stone-700 focus:outline-none focus:border-stone-500 rounded-lg"
+        />
+        <input
+          type="number"
+          id="exhale"
+          placeholder="Exhale"
+          class="border border-stone-600 rounded w-full py-1 px-3 bg-stone-700 focus:outline-none focus:border-stone-500 rounded-lg"
         />
       </div>
-      <div class="mb-4">
-        <button
-          id="start"
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline rounded-md"
-        >
-          Start Timer
-        </button>
-      </div>
-      <div id="message" class="mt-6 text-gray-800"></div>
+      <button
+        id="start"
+        class="bg-green-600 hover:bg-green-700 font-bold py-1 px-4 rounded focus:outline-none focus:bg-green-800 rounded-lg"
+      >
+        Start
+      </button>
+      <div id="message"></div>
       <audio
         id="beep"
         src="https://www.soundjay.com/buttons/sounds/beep-01a.mp3"
@@ -55,42 +74,49 @@
 
     <script>
       document.getElementById("start").addEventListener("click", function () {
-        let seconds = document.getElementById("seconds").value;
+        let inhale = document.getElementById("inhale").value;
+        let retain = document.getElementById("retain").value;
+        let exhale = document.getElementById("exhale").value;
         let message = document.getElementById("message");
         let beepSound = document.getElementById("beep");
-
-        if (seconds <= 0) {
-          message.textContent = "Please enter a positive number of seconds.";
-          message.classList.add("text-red-500");
-          message.classList.remove("text-green-500");
-          return;
-        }
-
-        message.textContent = `Timer set for ${seconds} seconds.`;
-        message.classList.remove("text-red-500");
-        message.classList.add("text-green-500");
 
         let repetitions = 1000;
         let currentRepetition = 0;
 
         function startTimer() {
-          let remainingTime = parseInt(seconds);
+          let totalTime =
+            parseInt(inhale) + parseInt(retain) + parseInt(exhale);
+          let remainingTime = totalTime;
+          message.textContent = `Time remaining: ${remainingTime} seconds.`;
+
           let intervalId = setInterval(function () {
             remainingTime--;
             message.textContent = `Time remaining: ${remainingTime} seconds.`;
 
-            if (remainingTime <= 0) {
-              clearInterval(intervalId);
-              message.textContent = "Time's up!";
+            if (remainingTime === parseInt(retain) + parseInt(exhale)) {
               beepSound
                 .play()
                 .catch((e) => console.error("Error playing beep:", e));
+            }
+
+            if (remainingTime === parseInt(exhale)) {
+              beepSound
+                .play()
+                .catch((e) => console.error("Error playing beep:", e));
+            }
+
+            if (remainingTime <= 0) {
+              beepSound
+                .play()
+                .catch((e) => console.error("Error playing beep:", e));
+              clearInterval(intervalId);
+
               currentRepetition++;
 
               if (currentRepetition < repetitions) {
-                setTimeout(startTimer, 1000);
+                startTimer();
               } else {
-                message.textContent = "Timer sequence complete!";
+                message.textContent = "Sequence completed!";
               }
             }
           }, 1000);
